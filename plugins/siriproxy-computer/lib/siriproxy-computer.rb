@@ -22,6 +22,8 @@ class SiriProxy::Plugin::Computer < SiriProxy::Plugin
 		say "I paused iTunes for you."
 	elsif userAction == "play" or userAction == "play " or userAction == "start playing" or userAction == "start playing " or userAction == "start" or userAction == "start " then
 		`osascript -e 'tell application "iTunes" to play'`
+            playingname = %x[osascript -e 'tell application "iTunes" to name of current track as string']
+            playingartist = %x[osascript -e 'tell application "iTunes" to artist of current track as string']
 		say "Playing #{playingname} by #{playingartist}"
 	elsif userAction == "next" or userAction == "next " or userAction == "next track" or userAction == "next track " or userAction == "next song " then
 		`osascript -e 'tell application "iTunes" to next track'`
@@ -49,7 +51,8 @@ class SiriProxy::Plugin::Computer < SiriProxy::Plugin
 		say "Volume was raised to #{newvol} percent."
         begin
             keepgoing = ask "Is that good?"
-            if keepgoing == "No " or keepgoing == "Nope " or keepgoing == "Keep going " or keepgoing == "That isn't good   " or keepgoing == "That's not good " then
+            keepgoing.strip!
+            if keepgoing == "No" or keepgoing == "Nope" or keepgoing == "Keep going" or keepgoing == "That isn't good" or keepgoing == "That's not good" then
                 keepgoing = "1"
                 currentvol = `osascript -e 'tell application "iTunes" to sound volume as integer'`
                 newvol = (currentvol.to_i + 20)
@@ -73,7 +76,8 @@ class SiriProxy::Plugin::Computer < SiriProxy::Plugin
 		say "Volume was lowered to #{newvol} percent."
         begin
         keepgoing = ask "Is that good?"
-        if keepgoing == "No " or keepgoing == "Nope " or keepgoing == "Keep going " or keepgoing == "That isn't good " or keepgoing == "That's not good " then
+            keepgoing.strip!
+        if keepgoing == "No" or keepgoing == "Nope" or keepgoing == "Keep going" or keepgoing == "That isn't good" or keepgoing == "That's not good" then
             keepgoing = "1"
             currentvol = `osascript -e 'tell application "iTunes" to sound volume as integer'`
             newvol = (currentvol.to_i - 20)
@@ -96,17 +100,20 @@ class SiriProxy::Plugin::Computer < SiriProxy::Plugin
   listen_for /open program (.*)/i do |userAction|
 	`osascript -e 'tell application "#{userAction.chop}" to activate'`
 	say "Opening #{userAction.chop}."
+  request_completed
   end
   listen_for /quit program (.*)/i do |userAction|
 	`osascript -e 'tell application "#{userAction.chop}" to quit'`
 	say "Quitting #{userAction.chop}."
+  request_completed
   end
   listen_for /type on my computer/i do
 	begin
 	whattotype = ask "What should I type for you?"
 	`osascript -e 'tell application "System Events" to keystroke "#{whattotype}"'`
 	more = ask "Anything else?"
-	if more == "Yes " or more == "Yes" or more == "Yeah " or more == "Yeah" or more == "Sure" or more == "Sure "
+        more.strip!
+	if more == "Yes" or more == "Yeah" or more == "Sure"
         more = "1"
         say "Ok."
     else
@@ -115,5 +122,31 @@ class SiriProxy::Plugin::Computer < SiriProxy::Plugin
     end
     end while more == "1"
     request_completed
+  end
+  listen_for /open a website/i do
+      url = ask "What URL?"
+      url.gsub!(/ /,'')
+      `osascript -e 'open location "http://#{url.downcase}"'`
+      say "Opening #{url.downcase} in your web browser."
+  request_completed
+  end
+  listen_for /spotlight search/i do
+      text = ask "What do you want to search for?"
+      text.strip!
+      `osascript -e 'tell application "System Events" to keystroke space using {command down, option down}'`
+      sleep(1)
+      `osascript -e 'tell application "System Events" to keystroke "#{text}"'`
+      say "Searching for #{text}."
+      request_completed
+  end
+  listen_for /hide all windows/i do
+      `osascript -e 'tell application "System Events" to set visible of (every process whose visible is true) to false'`
+      say "I hid your windows, can you find them?"
+      request_completed
+  end
+  listen_for /show all windows/i do
+      `osascript -e 'tell application "System Events" to set visible of (every process whose visible is false) to true'`
+      say "All windows are now visible."
+      request_completed
   end
 end
