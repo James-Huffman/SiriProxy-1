@@ -35,22 +35,55 @@ class SiriProxy::Plugin::Computer < SiriProxy::Plugin
 	elsif userAction == "mute off" or userAction == "mute off " or userAction == "unmute" or userAction == "unmute " then
 		`osascript -e 'tell application "iTunes" to set mute to false'`
 		say "iTunes was unmuted."
-	elsif userAction == "volume up" or userAction == "volume up " then
+	elsif userAction == "volume up" or userAction == "volume up " or userAction == "turn it up " or userAction == "raise the volume " or userAction == "louder " then
 		currentvol = `osascript -e 'tell application "iTunes" to sound volume as integer'`
 		newvol = (currentvol.to_i + 20)
 		if newvol > 100 then
 			newvol = 100
 		end
 		`osascript -e 'tell application "iTunes" to set sound volume to #{newvol}'`
-		say "Volume was raised to #{newvol}."
-	elsif userAction == "volume down" or userAction == "volume down " then
+		say "Volume was raised to #{newvol} percent."
+        begin
+            keepgoing = ask "Is that good?"
+            if keepgoing == "No " or keepgoing == "Nope " or keepgoing == "Keep going " or keepgoing == "That isn't good   " or keepgoing == "That's not good " then
+                keepgoing = "1"
+                currentvol = `osascript -e 'tell application "iTunes" to sound volume as integer'`
+                newvol = (currentvol.to_i + 20)
+                if newvol < 0 then
+                    newvol = 0
+                end
+                `osascript -e 'tell application "iTunes" to set sound volume to #{newvol}'`
+                say "Volume was raised to #{newvol} percent."
+                else
+                keepgoing = "0"
+                say "Ok. Keeping volume at #{newvol} percent."
+            end
+        end while keepgoing == "1"
+    elsif userAction == "volume down" or userAction == "volume down " or userAction == "turn it down " or userAction == "lower the volume " or userAction == "softer " or userAction == "quieter " then
 		currentvol = `osascript -e 'tell application "iTunes" to sound volume as integer'`
 		newvol = (currentvol.to_i - 20)
 		if newvol < 0 then
 			newvol = 0
 		end
 		`osascript -e 'tell application "iTunes" to set sound volume to #{newvol}'`
-		say "Volume was lowered to #{newvol}."
+		say "Volume was lowered to #{newvol} percent."
+        begin
+        keepgoing = ask "Is that good?"
+        if keepgoing == "No " or keepgoing == "Nope " or keepgoing == "Keep going " or keepgoing == "That isn't good " or keepgoing == "That's not good " then
+            keepgoing = "1"
+            currentvol = `osascript -e 'tell application "iTunes" to sound volume as integer'`
+            newvol = (currentvol.to_i - 20)
+            if newvol < 0 then
+                newvol = 0
+            end
+            `osascript -e 'tell application "iTunes" to set sound volume to #{newvol}'`
+            say "Volume was lowered to #{newvol} percent."
+        else
+            keepgoing = "0"
+            say "Ok. Keeping volume at #{newvol} percent."
+        end
+        end while keepgoing == "1"
+            
 	else
 		say "That isn't something I can do right now."
 	end
