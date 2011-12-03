@@ -64,4 +64,19 @@ class SiriProxy::Plugin::Computer < SiriProxy::Plugin
 	`osascript -e 'tell application "#{userAction.chop}" to quit'`
 	say "Quitting #{userAction.chop}."
   end
+  listen_for /type on my computer/i do
+	begin
+	whattotype = ask "What should I type for you?"
+	`osascript -e 'tell application "System Events" to keystroke "#{whattotype}"'`
+	more = ask "Anything else?"
+	if more == "Yes " or more == "Yes" or more == "Yeah " or more == "Yeah" or more == "Sure" or more == "Sure "
+        more = "1"
+        say "Ok."
+    else
+        more = "0"
+        say "Ok, I won't type anything else. Goodbye."
+    end
+    end while more == "1"
+    request_completed
+  end
 end
