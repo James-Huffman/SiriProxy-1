@@ -23,11 +23,15 @@ class SiriProxy::Plugin::Computer < SiriProxy::Plugin
 	elsif userAction == "play" or userAction == "play " or userAction == "start playing" or userAction == "start playing " or userAction == "start" or userAction == "start " then
 		`osascript -e 'tell application "iTunes" to play'`
 		say "Playing #{playingname} by #{playingartist}"
-	elsif userAction == "next" or userAction == "next " or userAction == "next track" or userAction == "next track " then
+	elsif userAction == "next" or userAction == "next " or userAction == "next track" or userAction == "next track " or userAction == "next song " then
 		`osascript -e 'tell application "iTunes" to next track'`
-		say "Playing the next track: #{playingname} by #{playingartist}"
-	elsif userAction == "previous" or userAction == "previous " or userAction == "previous track" or userAction == "previous track " then
+            playingname = %x[osascript -e 'tell application "iTunes" to name of current track as string']
+            playingartist = %x[osascript -e 'tell application "iTunes" to artist of current track as string']
+        say "Playing the next track: #{playingname} by #{playingartist}"
+	elsif userAction == "previous" or userAction == "previous " or userAction == "previous track" or userAction == "previous track " or userAction == "previous song " then
 		`osascript -e 'tell application "iTunes" to previous track'`
+    playingname = %x[osascript -e 'tell application "iTunes" to name of current track as string']
+    playingartist = %x[osascript -e 'tell application "iTunes" to artist of current track as string']
 		say "Playing the previous track: #{playingname} by #{playingartist}"
 	elsif userAction == "mute" or userAction == "mute " then
 		`osascript -e 'tell application "iTunes" to set mute to true'`
