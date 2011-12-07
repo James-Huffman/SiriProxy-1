@@ -110,16 +110,29 @@ end
   listen_for /type on my computer/i do
 	begin
 	whattotype = ask "What should I type for you?"
-	`osascript -e 'tell application "System Events" to keystroke "#{whattotype}"'`
-	more = ask "Anything else?"
-        more.strip!
-	if more == "Yes" or more == "Yeah" or more == "Sure"
-        more = "1"
-        say "Ok."
-    else
-        more = "0"
-        say "Ok, I won't type anything else. Goodbye."
-    end
+        if whattotype == "Tab "
+            `osascript -e 'tell application "System Events" to keystroke tab'`
+            say "Tab key."
+            more = "1"
+        elsif whattotype == "Nothing " or whattotype == "Stop "
+            more = "0"
+            say "Ok, I won't type anything. Goodbye."
+        else
+            `osascript -e 'tell application "System Events" to keystroke "#{whattotype}"'`
+            more = ask "Anything else?"
+            more.strip!
+            if more == "Tab" or more == "Next"
+                more = "1"
+                `osascript -e 'tell application "System Events" to keystroke tab'`
+                say "Ok."
+                elsif more == "Yes" or more == "Yeah" or more == "Sure"
+                more = "1"
+                say "Ok."
+                else
+                more = "0"
+                say "Ok, I won't type anything else. Goodbye."
+            end
+        end
     end while more == "1"
     request_completed
   end
