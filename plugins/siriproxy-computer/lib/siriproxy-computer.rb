@@ -12,7 +12,17 @@ class SiriProxy::Plugin::Computer < SiriProxy::Plugin
   def initialize(config)
     #if you have custom configuration options, process them here!
   end
-
+    
+listen_for /open program (.*)/i do |userAction|
+	`osascript -e 'tell application "#{userAction.chop}" to activate'`
+	say "Opening #{userAction.chop}."
+    request_completed
+end
+listen_for /quit program (.*)/i do |userAction|
+	`osascript -e 'tell application "#{userAction.chop}" to quit'`
+	say "Quitting #{userAction.chop}."
+    request_completed
+end
   playingname = %x[osascript -e 'tell application "iTunes" to name of current track as string']
   playingartist = %x[osascript -e 'tell application "iTunes" to artist of current track as string']
 
@@ -97,16 +107,6 @@ class SiriProxy::Plugin::Computer < SiriProxy::Plugin
 	end
 	request_completed
    end
-  listen_for /open program (.*)/i do |userAction|
-	`osascript -e 'tell application "#{userAction.chop}" to activate'`
-	say "Opening #{userAction.chop}."
-  request_completed
-  end
-  listen_for /quit program (.*)/i do |userAction|
-	`osascript -e 'tell application "#{userAction.chop}" to quit'`
-	say "Quitting #{userAction.chop}."
-  request_completed
-  end
   listen_for /type on my computer/i do
 	begin
 	whattotype = ask "What should I type for you?"
