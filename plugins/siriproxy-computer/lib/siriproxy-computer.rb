@@ -193,6 +193,22 @@ end
       `osascript -e 'tell application "System Events" to keystroke "f" using {control down, command down}'`
       say "Full screen mode toggled."
       request_completed
+  end
+  listen_for /mission control/i do
+      `osascript -e 'tell application "System Events" to keystroke (ASCII character 30) using control down --up arrow'`
+      say "There you go."
+      request_completed
+  end
+  listen_for /next space/i do
+      `osascript -e 'tell application "System Events" to keystroke (ASCII character 29) using control down -- right arrow'`
+      say "Moving to the next space in Mission Control."
+      request_completed
+  end
+  listen_for /previous space/i do
+      `osascript -e 'tell application "System Events" to keystroke (ASCII character 28) using control down -- right arrow'`
+      say "Moving to the previous space in Mission Control."
+      request_completed
+  end
   listen_for /mail (.*)/i do |userAction|
   userAction.strip!
       if userAction == "check for new" or userAction == "check" or userAction == "unread" or userAction == "get new" then
