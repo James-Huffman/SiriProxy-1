@@ -205,7 +205,7 @@ end
       say "Screensaver started."
       request_completed
   end
-  listen_for /toggle full screen/i do
+  listen_for /toggle fullscreen/i do
       `osascript -e 'tell application "System Events" to keystroke "f" using {control down, command down}'`
       say "Full screen mode toggled."
       request_completed
