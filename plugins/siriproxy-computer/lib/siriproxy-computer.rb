@@ -14,12 +14,18 @@ class SiriProxy::Plugin::Computer < SiriProxy::Plugin
   end
     
 listen_for /open program (.*)/i do |userAction|
+    while userAction.empty? do
+    userAction = ask "What program?"
+    end
 	`osascript -e 'tell application "#{userAction.chop}" to activate'`
 	say "Opening #{userAction.chop}."
     request_completed
 end
 listen_for /quit program (.*)/i do |userAction|
-	`osascript -e 'tell application "#{userAction.chop}" to quit'`
+    while userAction.empty? do
+        userAction = ask "What program?"
+    end
+    `osascript -e 'tell application "#{userAction.chop}" to quit'`
 	say "Quitting #{userAction.chop}."
     request_completed
 end
@@ -27,31 +33,32 @@ end
   playingartist = %x[osascript -e 'tell application "iTunes" to artist of current track as string']
 
   listen_for /itunes (.*)/i do |userAction|
-	if userAction == "pause" or userAction == "pause " or userAction == "stop playing" or userAction == "stop playing " or userAction == "stop" or userAction == "stop " then
+      userAction.strip!
+	if userAction == "pause" or userAction == "stop playing" or userAction == "stop" then
 		`osascript -e 'tell application "iTunes" to pause'`
 		say "I paused iTunes for you."
-	elsif userAction == "play" or userAction == "play " or userAction == "start playing" or userAction == "start playing " or userAction == "start" or userAction == "start " then
+	elsif userAction == "play" or userAction == "start playing" or userAction == "start" then
 		`osascript -e 'tell application "iTunes" to play'`
             playingname = %x[osascript -e 'tell application "iTunes" to name of current track as string']
             playingartist = %x[osascript -e 'tell application "iTunes" to artist of current track as string']
 		say "Playing #{playingname} by #{playingartist}"
-	elsif userAction == "next" or userAction == "next " or userAction == "next track" or userAction == "next track " or userAction == "next song " then
+	elsif userAction == "next" or userAction == "next track" or userAction == "next song" then
 		`osascript -e 'tell application "iTunes" to next track'`
             playingname = %x[osascript -e 'tell application "iTunes" to name of current track as string']
             playingartist = %x[osascript -e 'tell application "iTunes" to artist of current track as string']
         say "Playing the next track: #{playingname} by #{playingartist}"
-	elsif userAction == "previous" or userAction == "previous " or userAction == "previous track" or userAction == "previous track " or userAction == "previous song " then
+	elsif userAction == "previous" or userAction == "previous track" or userAction == "previous song" then
 		`osascript -e 'tell application "iTunes" to previous track'`
     playingname = %x[osascript -e 'tell application "iTunes" to name of current track as string']
     playingartist = %x[osascript -e 'tell application "iTunes" to artist of current track as string']
 		say "Playing the previous track: #{playingname} by #{playingartist}"
-	elsif userAction == "mute" or userAction == "mute " then
+	elsif userAction == "mute" then
 		`osascript -e 'tell application "iTunes" to set mute to true'`
 		say "iTunes was muted."
-	elsif userAction == "mute off" or userAction == "mute off " or userAction == "unmute" or userAction == "unmute " then
+	elsif userAction == "mute off" or userAction == "unmute" then
 		`osascript -e 'tell application "iTunes" to set mute to false'`
 		say "iTunes was unmuted."
-	elsif userAction == "volume up" or userAction == "volume up " or userAction == "turn it up " or userAction == "raise the volume " or userAction == "louder " then
+	elsif userAction == "volume up" or userAction == "turn it up" or userAction == "raise the volume" or userAction == "louder" then
 		currentvol = `osascript -e 'tell application "iTunes" to sound volume as integer'`
 		newvol = (currentvol.to_i + 20)
 		if newvol > 100 then
@@ -76,7 +83,7 @@ end
                 say "Ok. Keeping volume at #{newvol} percent."
             end
         end while keepgoing == "1"
-    elsif userAction == "volume down" or userAction == "volume down " or userAction == "turn it down " or userAction == "lower the volume " or userAction == "softer " or userAction == "quieter " then
+    elsif userAction == "volume down" or userAction == "turn it down" or userAction == "lower the volume" or userAction == "softer" or userAction == "quieter" then
 		currentvol = `osascript -e 'tell application "iTunes" to sound volume as integer'`
 		newvol = (currentvol.to_i - 20)
 		if newvol < 0 then
@@ -101,8 +108,13 @@ end
             say "Ok. Keeping volume at #{newvol} percent."
         end
         end while keepgoing == "1"
-            
-	else
+    elsif userAction == "visuals" or userAction == "visualizer" then
+        `osascript -e 'tell application "iTunes" to activate' -e 'tell application "iTunes" to set visuals enabled to true'`
+        say "Damn...look at those visuals!"
+    elsif userAction == "stop visuals" or userAction == "stop the visualizer" then
+        `osascript -e 'tell application "iTunes" to activate' -e 'tell application "iTunes" to set visuals enabled to false'`
+        say "Ok. I turned off the visualizer."
+    else
 		say "That isn't something I can do right now."
 	end
 	request_completed
@@ -152,8 +164,18 @@ end
       say "Searching for #{text}."
       request_completed
   end
-  listen_for /hide all windows/i do
-      `osascript -e 'tell application "System Events" to set visible of (every process whose visible is true) to false'`
+  listen_for /hide this window/i do
+      `osascript -e 'tell application "System Events" to keystroke "h" using command down'`
+      say "Ok. I hid that window. Oh no..can you find it?"
+      request_completed
+  end
+  listen_for /hide all other windows/i do
+      `osascript -e 'tell application "System Events" to keystroke "h" using {command down, option down}'`
+      say "I hid all of the other windows. Where did they go??"
+      request_completed
+  end
+  listen_for /show the desktop/i do
+      `osascript -e 'do shell script "/Applications/Utilities/Expose.app/Contents/MacOS/Expose 1"'`
       say "I hid your windows, can you find them?"
       request_completed
   end
@@ -161,5 +183,47 @@ end
       `osascript -e 'tell application "System Events" to set visible of (every process whose visible is false) to true'`
       say "All windows are now visible."
       request_completed
+  end
+  listen_for /start my screensaver/i do
+      `osascript -e 'do shell script "/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine"'`
+      say "Screensaver started."
+      request_completed
+  end
+  listen_for /mail (.*)/i do |userAction|
+  userAction.strip!
+      if userAction == "check for new" or userAction == "check" or userAction == "unread" or userAction == "get new" then
+          `osascript -e 'tell application "Mail" to check for new mail for every account'`
+          numofnew = `osascript -e 'tell application "Mail" to unread count of inbox as integer'`
+          numofnew = Integer(numofnew)
+          if numofnew < 1 then
+              say "You have no new messages."
+          elsif numofnew == 1 then
+              say "You have 1 new message."
+          else
+              say "You have #{numofnew} new messages."
+          end
+      elsif userAction == "new" or userAction == "new message" then
+          `osascript -e 'tell application "Mail" to make new outgoing message with properties {visible:true}'`
+          say "New message created."
+      elsif userAction == "send" then
+          `osascript -e 'tell application "Mail" to send theMessage'`
+          say "Message sent."
+      else
+          say "That isn't something I can do right now."
+      end
+  request_completed
+  end
+  listen_for /transmission (.*)/i do |userAction|
+  userAction.strip!
+      if userAction == "pause" or userAction == "pause all" or userAction == "pause transfers" then
+          `osascript -e 'tell application "Transmission" to activate' -e 'tell application "System Events" to tell process "Transmission" to keystroke "." using {option down, command down}'`
+          say "All transfers were paused."
+      elsif userAction == "start" or userAction == "start all" or userAction == "start transfers" then
+          `osascript -e 'tell application "Transmission" to activate' -e 'tell application "System Events" to tell process "Transmission" to keystroke "/" using {option down, command down}'`
+          say "All transfers were started."
+      else
+          say "That isn't something I can do right now."
+      end
+  request_completed
   end
 end
