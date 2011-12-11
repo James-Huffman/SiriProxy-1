@@ -24,7 +24,13 @@ iTunes visuals, visualizer
 
 iTunes stop visuals, stop the visualizer
 
-Type on my computer: tab, up, down, left, right, nothing
+Finder move to trash, delete that
+
+Finder empty trash, empty the trash
+
+Finder securely empty trash, secure empty trash, force empty trash
+
+Type (types in any app)
 
 Open a website
 

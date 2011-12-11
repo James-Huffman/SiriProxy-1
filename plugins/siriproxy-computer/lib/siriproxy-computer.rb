@@ -119,49 +119,128 @@ end
 	end
 	request_completed
    end
-  listen_for /type on my computer/i do
-	begin
-	whattotype = ask "What should I type for you?"
-        if whattotype == "Tab "
-            `osascript -e 'tell application "System Events" to keystroke tab'`
-            say "Tab key."
-            more = "1"
-        elsif whattotype == "down" or whattotype == "down arrow"
-            `osascript -e 'tell application "System Events" to keystroke (ASCII character 31) --down arrow'`
-            say "Going down."
-            more = "1"
-        elsif whattotype == "up" or whattotype == "up arrow"
-            `osascript -e 'tell application "System Events" to keystroke (ASCII character 30) --up arrow'`
-            say "Going up."
-            more = "1"
-        elsif whattotype == "right" or whattotype == "right arrow"
-            `osascript -e 'tell application "System Events" to keystroke (ASCII character 29) --right arrow'`
-            say "Going right."
-            more = "1"
-        elsif whattotype == "left" or whattotype == "left arrow"
-            `osascript -e 'tell application "System Events" to keystroke (ASCII character 28) --left arrow'`
-            say "Going left."
-            more = "1"
-        elsif whattotype == "Nothing " or whattotype == "Stop "
-            more = "0"
-            say "Ok, I won't type anything. Goodbye."
+    listen_for /find her (.*)/i do |userAction|
+        userAction.strip!
+        if userAction == "move to trash" or userAction == "delete that" then
+            `osascript -e 'tell application "Finder" to activate' -e 'tell application "System Events" to key code 51 using command down'`
+            say "Moved it to the trash."
+        elsif userAction == "empty trash" or userAction == "empty the trash" then
+            `osascript -e 'tell application "Finder" to activate' -e 'tell application "System Events" to key code 51 using {command down, shift down}' -e 'tell application "System Events" to key code 76'`
+            say "Emptying the trash."     
+        elsif userAction == "force empty trash" or userAction == "secure empty trash" or userAction == "securely empty trash" then
+            `osascript -e 'tell application "Finder" to activate' -e 'tell application "System Events" to key code 51 using {command down, shift down, option down}' -e 'tell application "System Events" to key code 76'`
+            say "Emptying the trash securely."   
+        elsif userAction == "new folder" or userAction == "make new folder" then
+            
+            
+        elsif userAction == "get info" then
+            
+            
+        elsif userAction == "quick look" or userAction == "quicklook" then
+            
+            
+        elsif userAction == "connect to server" then
+            
+            
+        elsif userAction == "open applications" or userAction == "open applications folder" then
+            
+            
+        elsif userAction == "open computer" or userAction == "open computer folder" then
+            
+            
+        elsif userAction == "open enclosing" or userActino == "open enclosing folder" then
+            
+            
         else
-            `osascript -e 'tell application "System Events" to keystroke "#{whattotype}"'`
-            more = ask "Anything else?"
-            more.strip!
-            if more == "Tab" or more == "Next"
-                more = "1"
-                `osascript -e 'tell application "System Events" to keystroke tab'`
-                say "Ok."
-                elsif more == "Yes" or more == "Yeah" or more == "Sure"
-                more = "1"
-                say "Ok."
-                else
-                more = "0"
-                say "Ok, I won't type anything else. Goodbye."
-            end
+            say "That isn't something I can do right now."
         end
-    end while more == "1"
+        request_completed
+    end
+    listen_for /mail (.*)/i do |userAction|
+        userAction.strip!
+        if userAction == "check for new" or userAction == "check" or userAction == "unread" or userAction == "get new" then
+            `osascript -e 'tell application "Mail" to check for new mail for every account'`
+            numofnew = `osascript -e 'tell application "Mail" to unread count of inbox as integer'`
+            numofnew = Integer(numofnew)
+            if numofnew < 1 then
+                say "You have no new messages."
+                elsif numofnew == 1 then
+                say "You have 1 new message."
+                else
+                say "You have #{numofnew} new messages."
+            end
+            elsif userAction == "new" or userAction == "new message" then
+            `osascript -e 'tell application "Mail" to make new outgoing message with properties {visible:true}'`
+            say "New message created."
+            elsif userAction == "send" then
+            `osascript -e 'tell application "Mail" to send theMessage'`
+            say "Message sent."
+            else
+            say "That isn't something I can do right now."
+        end
+        request_completed
+    end
+    listen_for /transmission (.*)/i do |userAction|
+        userAction.strip!
+        if userAction == "pause" or userAction == "pause all" or userAction == "pause transfers" then
+            `osascript -e 'tell application "Transmission" to activate' -e 'tell application "System Events" to tell process "Transmission" to keystroke "." using {option down, command down}'`
+            say "All transfers were paused."
+            elsif userAction == "start" or userAction == "start all" or userAction == "start transfers" then
+            `osascript -e 'tell application "Transmission" to activate' -e 'tell application "System Events" to tell process "Transmission" to keystroke "/" using {option down, command down}'`
+            say "All transfers were started."
+            else
+            say "That isn't something I can do right now."
+        end
+        request_completed
+    end
+  listen_for /type (.*)/i do |whattotype|
+      if whattotype == "" then
+            begin
+                    whattotype = ask "What should I type for you?"
+                    if whattotype == "Tab "
+                            `osascript -e 'tell application "System Events" to keystroke tab'`
+                            say "Tab key."
+                            more = "1"
+                    elsif whattotype == "down" or whattotype == "down arrow"
+                            `osascript -e 'tell application "System Events" to keystroke (ASCII character 31) --down arrow'`
+                            say "Going down."
+                            more = "1"
+                    elsif whattotype == "up" or whattotype == "up arrow"
+                            `osascript -e 'tell application "System Events" to keystroke (ASCII character 30) --up arrow'`
+                            say "Going up."
+                            more = "1"
+                    elsif whattotype == "right" or whattotype == "right arrow"
+                            `osascript -e 'tell application "System Events" to keystroke (ASCII character 29) --right arrow'`
+                            say "Going right."
+                            more = "1"
+                    elsif whattotype == "left" or whattotype == "left arrow"
+                            `osascript -e 'tell application "System Events" to keystroke (ASCII character 28) --left arrow'`
+                            say "Going left."
+                            more = "1"
+                    elsif whattotype == "Nothing " or whattotype == "Stop "
+                            more = "0"
+                            say "Ok, I won't type anything. Goodbye."
+                    else
+                            `osascript -e 'tell application "System Events" to keystroke "#{whattotype}"'`
+                            more = ask "Anything else?"
+                            more.strip!
+                            if more == "Tab" or more == "Next"
+                                    more = "1"
+                                    `osascript -e 'tell application "System Events" to keystroke tab'`
+                                    say "Ok."
+                            elsif more == "Yes" or more == "Yeah" or more == "Sure"
+                                    more = "1"
+                                    say "Ok."
+                            else
+                                    more = "0"
+                                    say "Ok, I won't type anything else. Goodbye."
+                            end
+                    end
+            end while more == "1"
+        else
+          `osascript -e 'tell application "System Events" to keystroke "#{whattotype}"'`
+          say "Done."
+        end
     request_completed
   end
   listen_for /open a website/i do
@@ -225,41 +304,5 @@ end
       say "Moving to the previous space in Mission Control."
       request_completed
   end
-  listen_for /mail (.*)/i do |userAction|
-  userAction.strip!
-      if userAction == "check for new" or userAction == "check" or userAction == "unread" or userAction == "get new" then
-          `osascript -e 'tell application "Mail" to check for new mail for every account'`
-          numofnew = `osascript -e 'tell application "Mail" to unread count of inbox as integer'`
-          numofnew = Integer(numofnew)
-          if numofnew < 1 then
-              say "You have no new messages."
-          elsif numofnew == 1 then
-              say "You have 1 new message."
-          else
-              say "You have #{numofnew} new messages."
-          end
-      elsif userAction == "new" or userAction == "new message" then
-          `osascript -e 'tell application "Mail" to make new outgoing message with properties {visible:true}'`
-          say "New message created."
-      elsif userAction == "send" then
-          `osascript -e 'tell application "Mail" to send theMessage'`
-          say "Message sent."
-      else
-          say "That isn't something I can do right now."
-      end
-  request_completed
-  end
-  listen_for /transmission (.*)/i do |userAction|
-  userAction.strip!
-      if userAction == "pause" or userAction == "pause all" or userAction == "pause transfers" then
-          `osascript -e 'tell application "Transmission" to activate' -e 'tell application "System Events" to tell process "Transmission" to keystroke "." using {option down, command down}'`
-          say "All transfers were paused."
-      elsif userAction == "start" or userAction == "start all" or userAction == "start transfers" then
-          `osascript -e 'tell application "Transmission" to activate' -e 'tell application "System Events" to tell process "Transmission" to keystroke "/" using {option down, command down}'`
-          say "All transfers were started."
-      else
-          say "That isn't something I can do right now."
-      end
-  request_completed
-  end
+
 end
