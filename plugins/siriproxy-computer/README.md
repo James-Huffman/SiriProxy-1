@@ -24,7 +24,7 @@ iTunes visuals, visualizer
 
 iTunes stop visuals, stop the visualizer
 
-Type on my computer
+Type on my computer: tab, up, down, left, right, nothing
 
 Open a website
 
