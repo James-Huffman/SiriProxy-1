@@ -126,6 +126,22 @@ end
             `osascript -e 'tell application "System Events" to keystroke tab'`
             say "Tab key."
             more = "1"
+        elsif whattotype == "down" or whattotype == "down arrow"
+            `osascript -e 'tell application "System Events" to keystroke (ASCII character 31) --down arrow'`
+            say "Going down."
+            more = "1"
+        elsif whattotype == "up" or whattotype == "up arrow"
+            `osascript -e 'tell application "System Events" to keystroke (ASCII character 30) --up arrow'`
+            say "Going up."
+            more = "1"
+        elsif whattotype == "right" or whattotype == "right arrow"
+            `osascript -e 'tell application "System Events" to keystroke (ASCII character 29) --right arrow'`
+            say "Going right."
+            more = "1"
+        elsif whattotype == "left" or whattotype == "left arrow"
+            `osascript -e 'tell application "System Events" to keystroke (ASCII character 28) --left arrow'`
+            say "Going left."
+            more = "1"
         elsif whattotype == "Nothing " or whattotype == "Stop "
             more = "0"
             say "Ok, I won't type anything. Goodbye."
