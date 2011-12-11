@@ -40,6 +40,8 @@ Show all windows
 
 start my screensaver
 
+toggle full screen
+
 Mail check for new, check, unread, get new
 
 Mail new message, new

@@ -189,6 +189,10 @@ end
       say "Screensaver started."
       request_completed
   end
+  listen_for /toggle full screen/i do
+      `osascript -e 'tell application "System Events" to keystroke "f" using {control down, command down}'`
+      say "Full screen mode toggled."
+      request_completed
   listen_for /mail (.*)/i do |userAction|
   userAction.strip!
       if userAction == "check for new" or userAction == "check" or userAction == "unread" or userAction == "get new" then
