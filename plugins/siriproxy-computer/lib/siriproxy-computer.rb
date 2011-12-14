@@ -34,6 +34,17 @@ end
 
   listen_for /itunes (.*)/i do |userAction|
       userAction.strip!
+      iTunes_commands(userAction)
+      request_completed
+  end
+  
+  listen_for /i tunes (.*)/i do |userAction|
+  	userAction.strip!
+  	iTunes_commands(userAction)
+  	request_completed
+  end
+  
+def iTunes_Commands(userAction)
 	if userAction == "pause" or userAction == "stop playing" or userAction == "stop" then
 		`osascript -e 'tell application "iTunes" to pause'`
 		say "I paused iTunes for you."
@@ -117,9 +128,9 @@ end
     else
 		say "That isn't something I can do right now."
 	end
-	request_completed
-   end
-    listen_for /find her (.*)/i do |userAction|
+end
+
+    listen_for /finder (.*)/i do |userAction|
         userAction.strip!
         if userAction == "move to trash" or userAction == "delete that" then
             `osascript -e 'tell application "Finder" to activate' -e 'tell application "System Events" to key code 51 using command down'`
